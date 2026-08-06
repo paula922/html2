@@ -1,0 +1,11 @@
+<?php if (!empty($page_extra_css)):
+    $css_base = '/erpadso/src/css/';
+    foreach ($page_extra_css as $css): ?>
+    <link rel="stylesheet" href="<?= $css_base . htmlspecialchars($css) ?>">
+<?php endforeach; endif; ?>
+
+
+<?php if (!empty($page_extra_js)):
+    foreach ($page_extra_js as $js): ?>
+    <script src="/erpadso/src/js/<?= htmlspecialchars($js) ?>" defer></script>
+<?php endforeach; endif; ?>

@@ -1,0 +1,152 @@
+[2026-03-03 23:45:02] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:07] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:10] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:11] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:11] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:12] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:12] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:13] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:15] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:15] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:16] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:17] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:23] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:28] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:35] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:42] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:43] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:43] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:44] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:44] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:45] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:45:46] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:48:49] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-03 23:50:01] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_update_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: 127.0.0.1
+[2026-03-05 07:03:19] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:03:52] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:04:05] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:04:37] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:04:52] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:07:05] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:07:30] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:07:40] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-03-05 07:37:23] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_perfil_usuario(character varying)
+LINE 1: SELECT fun_delete_perfil_usuario($1::VARCHAR)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-04-24 07:24:02] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_menus(text, text, text, text)
+LINE 1: SELECT fun_update_tab_menus($1::TEXT, $2::TEXT, $3::TEXT, $4...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-04-24 07:24:13] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_update_tab_menus(text, text, text, text)
+LINE 1: SELECT fun_update_tab_menus($1::TEXT, $2::TEXT, $3::TEXT, $4...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-04-24 08:14:47] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_insert_tab_usuarios(text, text, text, text, boolean, boolean)
+LINE 1: SELECT fun_insert_tab_usuarios($1::TEXT, $2::TEXT, $3::TEXT,...
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-04-24 08:17:52] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_tab_menus(text)
+LINE 1: SELECT fun_delete_tab_menus($1::TEXT)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1
+[2026-04-24 19:03:48] DATABASE_ERROR | Code: 42883 | Message: ERROR:  no existe la función fun_delete_tab_menus(text)
+LINE 1: SELECT fun_delete_tab_menus($1::TEXT)
+               ^
+HINT:  Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos. | IP: ::1

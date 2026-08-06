@@ -1,0 +1,670 @@
+<?php
+// ========== PERSONALIZAR PÁGINA ==========
+$page_title = "ADSOERP | Explorador de Menús";
+$page_description = "Estructura completa del sistema (vista de administrador)";
+$page_icon = "bi-diagram-3";
+$page_extra_css = [];
+$page_extra_js = [];
+$show_welcome = false;
+// ==========================================
+
+if (!defined('INCLUDE_MENU_PRINCIPAL')) {
+    header("Location: menu_principal.php");
+    exit();
+}
+
+require_once('prepare.php');
+
+// ============================================
+// OBTENER TODOS LOS MENÚS (SIN RESTRICCIONES)
+// ============================================
+$stmt = $pdo->query("
+    SELECT id_menu, nom_menu, ind_id_padre, nom_programa 
+    FROM tab_menus 
+    ORDER BY 
+        CASE WHEN ind_id_padre = '0' THEN 0 ELSE 1 END,
+        ind_id_padre, 
+        id_menu
+");
+$menus_raw = $stmt->fetchAll();
+
+// ============================================
+// CONSTRUIR ÁRBOL COMPLETO (MANEJA HUÉRFANOS)
+// ============================================
+function buildCompleteTree($items, $parentId = '0') {
+    $tree = [];
+    $children = [];
+    
+    // Primero, organizar por padre
+    foreach ($items as $item) {
+        $children[$item['ind_id_padre']][] = $item;
+    }
+    
+    // Función recursiva para construir el árbol
+    function buildBranch($parentId, &$children, $level = 0) {
+        $branch = [];
+        if (isset($children[$parentId])) {
+            foreach ($children[$parentId] as $item) {
+                $item['level'] = $level;
+                $item['children'] = buildBranch($item['id_menu'], $children, $level + 1);
+                $branch[] = $item;
+            }
+        }
+        return $branch;
+    }
+    
+    // Construir desde la raíz
+    $tree = buildBranch($parentId, $children, 0);
+    
+    // Buscar y agregar menús huérfanos (cuyo padre no existe)
+    $existingIds = array_column($items, 'id_menu');
+    $orphans = [];
+    foreach ($items as $item) {
+        if ($item['ind_id_padre'] != '0' && !in_array($item['ind_id_padre'], $existingIds)) {
+            $item['level'] = 0;
+            $item['is_orphan'] = true;
+            $orphans[] = $item;
+        }
+    }
+    
+    // Agregar huérfanos al final
+    $tree = array_merge($tree, $orphans);
+    
+    return $tree;
+}
+
+$menu_tree = buildCompleteTree($menus_raw);
+
+// Contar estadísticas
+$total_menus = count($menus_raw);
+$total_raices = count(array_filter($menus_raw, function($item) {
+    return $item['ind_id_padre'] == '0';
+}));
+$total_huerfanos = count(array_filter($menu_tree, function($item) {
+    return isset($item['is_orphan']) && $item['is_orphan'] === true;
+}));
+
+// Variables para el modal
+$f_id = "";
+$f_nom = "";
+$f_padre = "0";
+$f_programa = "";
+$f_id_readonly = false;
+$w_mensaje = "";
+$w_tipo_alerta = "";
+
+// Procesar POST (CRUD)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $redirect_url = 'menu_principal.php';
+    $params = [];
+    if (!empty($_POST['_padre'])) $params[] = 'padre=' . (int)$_POST['_padre'];
+    if (!empty($_POST['_hijo'])) $params[] = 'hijo=' . (int)$_POST['_hijo'];
+    if (!empty($_POST['_nieto'])) $params[] = 'nieto=' . (int)$_POST['_nieto'];
+    if ($params) $redirect_url .= '?' . implode('&', $params);
+
+    try {
+        if (isset($_POST['btn_guardar'])) {
+            $w_id = trim($_POST['txt_id_menu']);
+            $w_nom = trim($_POST['txt_nom_menu']);
+            $w_padre = trim($_POST['txt_id_padre'] ?? '0');
+            $w_programa = trim($_POST['txt_nom_programa'] ?? '');
+
+            if (empty($w_id)) throw new Exception("El ID es obligatorio.");
+            if (empty($w_nom)) throw new Exception("El nombre es obligatorio.");
+            if (preg_match('/\s/', $w_id)) throw new Exception("El ID no puede contener espacios.");
+            
+            if ($w_padre != '0') {
+                $stmt_check_padre = $pdo->prepare("SELECT COUNT(*) FROM tab_menus WHERE id_menu = ?");
+                $stmt_check_padre->execute([$w_padre]);
+                if ($stmt_check_padre->fetchColumn() == 0) {
+                    throw new Exception("El menú padre seleccionado no existe.");
+                }
+            }
+
+            $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM tab_menus WHERE id_menu = ?");
+            $stmt_check->execute([$w_id]);
+            $existe = $stmt_check->fetchColumn();
+
+            if ($existe) {
+                $stmt = $pdo->prepare("UPDATE tab_menus SET nom_menu=?, ind_id_padre=?, nom_programa=? WHERE id_menu = ?");
+                $stmt->execute([$w_nom, $w_padre, $w_programa, $w_id]);
+                $w_mensaje = "✅ Menú actualizado correctamente.";
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO tab_menus (id_menu, nom_menu, ind_id_padre, nom_programa) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$w_id, $w_nom, $w_padre, $w_programa]);
+                $w_mensaje = "✅ Menú creado correctamente.";
+            }
+            $w_tipo_alerta = "success";
+            echo "<script>window.location.href='$redirect_url';</script>";
+            exit();
+        }
+
+        if (isset($_POST['btn_eliminar'])) {
+            $w_id = $_POST['hid_id_menu'];
+            
+            $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM tab_menus WHERE ind_id_padre = ?");
+            $stmt_check->execute([$w_id]);
+            if ($stmt_check->fetchColumn() > 0) {
+                throw new Exception("❌ No se puede eliminar: tiene submenús asociados.");
+            }
+            
+            $stmt_check_usuarios = $pdo->prepare("SELECT COUNT(*) FROM tab_menu_usuarios WHERE id_menu = ?");
+            $stmt_check_usuarios->execute([$w_id]);
+            
+            $stmt = $pdo->prepare("DELETE FROM tab_menus WHERE id_menu = ?");
+            $stmt->execute([$w_id]);
+            $w_mensaje = "✅ Menú eliminado correctamente.";
+            $w_tipo_alerta = "success";
+            echo "<script>window.location.href='$redirect_url';</script>";
+            exit();
+        }
+    } catch (Exception $e) {
+        $w_mensaje = $e->getMessage();
+        $w_tipo_alerta = "danger";
+    }
+}
+?>
+
+<link rel="stylesheet" href="../src/css/menus.css">
+
+<div class="menu-explorer">
+    <!-- Cabecera -->
+    <div class="menu-explorer-header">
+        <div class="menu-stats">
+            <span><i class="bi bi-folder-fill" style="color:#f59e0b;"></i> <span id="totalFolders">0</span> carpetas</span>
+            <span><i class="bi bi-file-text-fill" style="color:#64748b;"></i> <span id="totalFiles">0</span> ítems</span>
+            <span><i class="bi bi-diagram-3"></i> <span id="totalMenus"><?= $total_menus ?></span> total</span>
+            <?php if ($total_huerfanos > 0): ?>
+                <span class="badge-orphan"><i class="bi bi-exclamation-triangle-fill"></i> <?= $total_huerfanos ?> huérfanos</span>
+            <?php endif; ?>
+        </div>
+        
+        <div class="menu-actions">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchInput" placeholder="Buscar por ID o nombre..." onkeyup="filtrarArbol()">
+            </div>
+            <button class="action-btn" onclick="expandirTodo()" title="Expandir todo">
+                <i class="bi bi-plus-square"></i> Expandir
+            </button>
+            <button class="action-btn" onclick="contraerTodo()" title="Contraer todo">
+                <i class="bi bi-dash-square"></i> Contraer
+            </button>
+            <button class="action-btn btn-add" onclick="abrirModal()">
+                <i class="bi bi-plus-circle"></i> Nuevo Menú
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mensajes de alerta -->
+    <?php if ($w_mensaje): ?>
+        <div style="padding: 12px 20px 0 20px;">
+            <div class="alert alert-<?= $w_tipo_alerta ?> alert-dismissible fade show">
+                <i class="bi <?= $w_tipo_alerta === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill' ?>"></i>
+                <?= htmlspecialchars($w_mensaje) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+            </div>
+        </div>
+    <?php endif; ?>
+    
+    <!-- Árbol de menús -->
+    <div class="tree-container" id="treeContainer">
+        <ul class="tree-root" id="treeRoot">
+            <?php
+            function renderExplorerTree($nodes, $level = 0) {
+                $html = '';
+                foreach ($nodes as $node) {
+                    $hasChildren = !empty($node['children']);
+                    $isOrphan = isset($node['is_orphan']) && $node['is_orphan'] === true;
+                    $programa = !empty($node['nom_programa']) && $node['nom_programa'] != 'no_aplica' 
+                        ? htmlspecialchars($node['nom_programa']) : null;
+                    $isRoot = ($node['ind_id_padre'] == '0');
+                    $nodeId = 'node_' . $node['id_menu'];
+                    $levelClass = $level > 0 ? 'level-' . $level : '';
+                    
+                    $html .= '<li id="' . $nodeId . '" data-id="' . htmlspecialchars($node['id_menu']) . '"
+                              data-nom="' . strtolower(htmlspecialchars($node['nom_menu'])) . '"
+                              data-prog="' . strtolower(htmlspecialchars($node['nom_programa'] ?? '')) . '"
+                              data-type="' . ($hasChildren ? 'folder' : 'file') . '"
+                              data-parent="' . htmlspecialchars($node['ind_id_padre']) . '">';
+                    
+                    $html .= '<div class="tree-node" onclick="toggleNodeClick(event, this, \'' . $nodeId . '\')">';
+                    $html .= '<div class="tree-node-content">';
+                    
+                    // Indentación
+                    for ($i = 0; $i < $level; $i++) {
+                        $html .= '<span class="tree-indent"></span>';
+                    }
+                    
+                    // Botón expandir/contraer
+                    if ($hasChildren) {
+                        $html .= '<span class="tree-toggle" onclick="event.stopPropagation(); toggleNode(this, \'' . $nodeId . '\')">
+                                    <i class="bi bi-chevron-right"></i>
+                                  </span>';
+                    } else {
+                        $html .= '<span class="tree-toggle" style="visibility:hidden;"></span>';
+                    }
+                    
+                    // Icono según tipo
+                    if ($hasChildren) {
+                        $html .= '<span class="tree-icon folder-icon"><i class="bi bi-folder-fill"></i></span>';
+                    } else {
+                        $html .= '<span class="tree-icon file-icon"><i class="bi bi-file-text-fill"></i></span>';
+                    }
+                    
+                    // Información del nodo
+                    $html .= '<div class="tree-info">';
+                    $html .= '<span class="tree-name">' . htmlspecialchars($node['nom_menu']) . '</span>';
+                    $html .= '<span class="tree-id">ID: ' . htmlspecialchars($node['id_menu']) . '</span>';
+                    
+                    if ($isRoot) {
+                        $html .= '<span class="tree-badge badge-root"><i class="bi bi-star-fill"></i> Raíz</span>';
+                    } else {
+                        $html .= '<span class="tree-badge badge-child"><i class="bi bi-arrow-return-right"></i> Padre: ' . htmlspecialchars($node['ind_id_padre']) . '</span>';
+                    }
+                    
+                    if ($isOrphan) {
+                        $html .= '<span class="tree-badge badge-orphan"><i class="bi bi-exclamation-triangle-fill"></i> Huérfano</span>';
+                    }
+                    
+                    if ($programa) {
+                        $html .= '<span class="badge-prog"><i class="bi bi-file-code"></i> ' . $programa . '</span>';
+                    }
+                    
+                    $html .= '</div>'; // .tree-info
+                    $html .= '</div>'; // .tree-node-content
+                    
+                    // Acciones
+                    $html .= '<div class="tree-actions" onclick="event.stopPropagation()">
+                                <button class="btn-icon edit" onclick="abrirModalEdicion(\'' . htmlspecialchars($node['id_menu']) . '\')" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button class="btn-icon info" onclick="verDetalle(\'' . htmlspecialchars($node['id_menu']) . '\', \'' . addslashes($node['nom_menu']) . '\')" title="Ver detalle">
+                                    <i class="bi bi-info-circle"></i>
+                                </button>
+                                <form method="POST" style="display:inline;" onsubmit="return confirmarEliminar(event, \'' . addslashes($node['nom_menu']) . '\')">
+                                    <input type="hidden" name="_padre" value="' . htmlspecialchars($_GET['padre'] ?? '') . '">
+                                    <input type="hidden" name="_hijo" value="' . htmlspecialchars($_GET['hijo'] ?? '') . '">
+                                    <input type="hidden" name="_nieto" value="' . htmlspecialchars($_GET['nieto'] ?? '') . '">
+                                    <input type="hidden" name="hid_id_menu" value="' . htmlspecialchars($node['id_menu']) . '">
+                                    <button type="submit" name="btn_eliminar" class="btn-icon delete" title="Eliminar">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </div>';
+                    
+                    $html .= '</div>'; // .tree-node
+                    
+                    // Hijos
+                    if ($hasChildren) {
+                        $html .= '<ul class="tree-children" id="children_' . $nodeId . '">';
+                        $html .= renderExplorerTree($node['children'], $level + 1);
+                        $html .= '</ul>';
+                    }
+                    
+                    $html .= '</li>';
+                }
+                return $html;
+            }
+            
+            echo renderExplorerTree($menu_tree);
+            ?>
+        </ul>
+    </div>
+    
+    <!-- Footer -->
+    <div class="menu-footer">
+        <span id="itemCount"><?= $total_menus ?> menús</span> | 
+        <span>Estructura completa del sistema</span>
+    </div>
+</div>
+
+<!-- Modal para crear/editar -->
+<div class="modal-overlay" id="modalOverlay" onclick="cerrarModalSiOverlay(event)">
+    <div class="modal-card">
+        <div class="modal-card-header">
+            <span id="modal_titulo"><i class="bi bi-plus-circle-fill"></i> Nuevo Menú</span>
+            <button class="modal-close-btn" onclick="cerrarModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-card-body">
+            <form method="POST" id="formMenus">
+                <input type="hidden" name="_padre" value="<?= htmlspecialchars($_GET['padre'] ?? '') ?>">
+                <input type="hidden" name="_hijo" value="<?= htmlspecialchars($_GET['hijo'] ?? '') ?>">
+                <input type="hidden" name="_nieto" value="<?= htmlspecialchars($_GET['nieto'] ?? '') ?>">
+
+                <div class="mb-3">
+                    <label class="form-label-custom">ID MENÚ *</label>
+                    <input type="text" name="txt_id_menu" id="f_id" class="form-control-sm" placeholder="Ej: 100" required style="font-family:monospace;" value="<?= htmlspecialchars($f_id) ?>" <?= $f_id_readonly ? 'readonly' : '' ?>>
+                    <div id="val_id" class="val-feedback" style="font-size:0.7rem;color:#ef4444;"></div>
+                    <small class="text-muted">Identificador único numérico</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">DESCRIPCIÓN *</label>
+                    <input type="text" name="txt_nom_menu" id="f_nom" class="form-control-sm" placeholder="Nombre del menú" required value="<?= htmlspecialchars($f_nom) ?>">
+                    <div id="val_nom" class="val-feedback" style="font-size:0.7rem;color:#ef4444;"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">MENÚ PADRE</label>
+                    <select name="txt_id_padre" id="f_padre" class="form-control-sm" style="width:100%;">
+                        <option value="0">— Ninguno (Raíz) —</option>
+                        <?php
+                        $stmt_opts = $pdo->query("SELECT id_menu, nom_menu FROM tab_menus ORDER BY id_menu");
+                        foreach ($stmt_opts->fetchAll() as $opt) {
+                            $selected = ($opt['id_menu'] == $f_padre) ? 'selected' : '';
+                            echo '<option value="' . htmlspecialchars($opt['id_menu']) . '" ' . $selected . '>' 
+                                 . htmlspecialchars($opt['id_menu']) . ' - ' . htmlspecialchars($opt['nom_menu']) . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">PROGRAMA / URL</label>
+                    <input type="text" name="txt_nom_programa" id="f_programa" class="form-control-sm" placeholder="ej: usuarios.php" value="<?= htmlspecialchars($f_programa) ?>">
+                    <small class="text-muted">Archivo PHP que se ejecutará al hacer clic</small>
+                </div>
+
+                <button type="submit" name="btn_guardar" id="btnGuardar" class="btn-guardar">
+                    <i class="bi bi-save me-1"></i> GUARDAR
+                </button>
+                <button type="button" onclick="limpiarFormulario()" class="btn-nuevo">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> LIMPIAR
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+let searchTimeout = null;
+
+// ============================================
+// EXPANDIR/CONTRAER NODO
+// ============================================
+function toggleNode(toggleBtn, nodeId) {
+    const li = document.getElementById(nodeId);
+    const children = li ? li.querySelector(':scope > .tree-children') : null;
+    const icon = toggleBtn.querySelector('i');
+    
+    if (children) {
+        if (children.classList.contains('open')) {
+            children.classList.remove('open');
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+            toggleBtn.classList.remove('expanded');
+        } else {
+            children.classList.add('open');
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+            toggleBtn.classList.add('expanded');
+        }
+    }
+}
+
+function toggleNodeClick(event, nodeDiv, nodeId) {
+    if (event.target.closest('.tree-actions')) return;
+    if (event.target.closest('.tree-toggle')) return;
+    
+    const li = document.getElementById(nodeId);
+    const children = li ? li.querySelector(':scope > .tree-children') : null;
+    const toggleBtn = nodeDiv.querySelector('.tree-toggle');
+    
+    if (children && toggleBtn && window.getComputedStyle(toggleBtn).visibility !== 'hidden') {
+        const icon = toggleBtn.querySelector('i');
+        if (children.classList.contains('open')) {
+            children.classList.remove('open');
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+            toggleBtn.classList.remove('expanded');
+        } else {
+            children.classList.add('open');
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+            toggleBtn.classList.add('expanded');
+        }
+    }
+    
+    document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('selected'));
+    nodeDiv.classList.add('selected');
+}
+
+function expandirTodo() {
+    document.querySelectorAll('.tree-children').forEach(el => el.classList.add('open'));
+    document.querySelectorAll('.tree-toggle').forEach(btn => {
+        const icon = btn.querySelector('i');
+        if (icon && window.getComputedStyle(btn).visibility !== 'hidden') {
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+            btn.classList.add('expanded');
+        }
+    });
+}
+
+function contraerTodo() {
+    document.querySelectorAll('.tree-children').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.tree-toggle').forEach(btn => {
+        const icon = btn.querySelector('i');
+        if (icon && window.getComputedStyle(btn).visibility !== 'hidden') {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+            btn.classList.remove('expanded');
+        }
+    });
+}
+
+// ============================================
+// FILTRAR ÁRBOL
+// ============================================
+function filtrarArbol() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const term = document.getElementById('searchInput').value.toLowerCase().trim();
+        const items = document.querySelectorAll('#treeRoot li[data-id]');
+        let visible = 0;
+        let folders = 0;
+        let files = 0;
+        
+        items.forEach(li => {
+            const nom = li.dataset.nom || '';
+            const id = li.dataset.id || '';
+            const prog = li.dataset.prog || '';
+            const type = li.dataset.type || '';
+            const matches = !term || nom.includes(term) || id.includes(term) || prog.includes(term);
+            
+            if (matches) {
+                visible++;
+                if (type === 'folder') folders++;
+                else files++;
+                li.style.display = '';
+            } else {
+                li.style.display = 'none';
+            }
+            
+            const treeName = li.querySelector('.tree-name');
+            if (treeName && term) {
+                const original = treeName.innerText;
+                if (original.toLowerCase().includes(term)) {
+                    const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    treeName.innerHTML = original.replace(regex, '<span class="highlight">$1</span>');
+                } else {
+                    treeName.innerHTML = original;
+                }
+            } else if (treeName) {
+                treeName.innerHTML = treeName.innerText;
+            }
+        });
+        
+        document.getElementById('totalFolders').innerText = folders;
+        document.getElementById('totalFiles').innerText = files;
+        document.getElementById('itemCount').innerText = `${visible} menú${visible !== 1 ? 's' : ''} visibles`;
+        
+        if (term) {
+            items.forEach(li => {
+                if (li.style.display !== 'none') {
+                    let parent = li.parentElement.closest('li');
+                    while (parent) {
+                        const children = parent.querySelector(':scope > .tree-children');
+                        const toggleBtn = parent.querySelector('.tree-toggle');
+                        if (children && !children.classList.contains('open')) {
+                            children.classList.add('open');
+                            const icon = toggleBtn?.querySelector('i');
+                            if (icon) {
+                                icon.classList.remove('bi-chevron-right');
+                                icon.classList.add('bi-chevron-down');
+                            }
+                        }
+                        parent = parent.parentElement?.closest('li');
+                    }
+                }
+            });
+        }
+    }, 200);
+}
+
+// ============================================
+// MODAL FUNCTIONS
+// ============================================
+function abrirModal() {
+    document.getElementById('modal_titulo').innerHTML = '<i class="bi bi-plus-circle-fill"></i> Nuevo Menú';
+    document.getElementById('f_id').readOnly = false;
+    document.getElementById('formMenus').reset();
+    document.getElementById('f_padre').value = '0';
+    document.getElementById('modalOverlay').classList.add('show');
+    limpiarValidaciones();
+}
+
+function abrirModalEdicion(id) {
+    document.getElementById('modal_titulo').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Menús';
+    document.getElementById('f_id').readOnly = true;
+    
+    const li = document.querySelector(`li[data-id="${id}"]`);
+    if (li) {
+        const nombre = li.querySelector('.tree-name')?.innerText || '';
+        let padre = '0';
+        const badgePadre = li.querySelector('.badge-child');
+        if (badgePadre) {
+            const match = badgePadre.innerText.match(/\d+/);
+            if (match) padre = match[0];
+        }
+        let programa = '';
+        const badgeProg = li.querySelector('.badge-prog');
+        if (badgeProg) {
+            programa = badgeProg.innerText.replace(/[^\w\/\.-]/g, '');
+        }
+        
+        document.getElementById('f_id').value = id;
+        document.getElementById('f_nom').value = nombre;
+        document.getElementById('f_padre').value = padre;
+        document.getElementById('f_programa').value = programa;
+    }
+    document.getElementById('modalOverlay').classList.add('show');
+    limpiarValidaciones();
+}
+
+function cerrarModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function cerrarModalSiOverlay(e) {
+    if (e.target === document.getElementById('modalOverlay')) cerrarModal();
+}
+
+function limpiarFormulario() {
+    document.getElementById('formMenus').reset();
+    document.getElementById('f_padre').value = '0';
+    document.getElementById('f_id').readOnly = false;
+    limpiarValidaciones();
+}
+
+function limpiarValidaciones() {
+    ['f_id', 'f_nom'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.borderColor = '';
+            const feedback = document.getElementById('val_' + id);
+            if (feedback) feedback.innerHTML = '';
+        }
+    });
+}
+
+function confirmarEliminar(e, nombre) {
+    if (!confirm(`¿Eliminar el menú "${nombre}"?\n\n⚠️ Se verificará si tiene submenús o está asignado a usuarios.`)) {
+        e.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+function verDetalle(id, nombre) {
+    alert(`📋 Detalle del menú\n\nID: ${id}\nNombre: ${nombre}\n\nPara editar, use el botón de lápiz.`);
+}
+
+// ============================================
+// VALIDACIÓN ANTES DE ENVIAR
+// ============================================
+document.getElementById('formMenus').addEventListener('submit', function(e) {
+    const idMenu = document.getElementById('f_id').value.trim();
+    const nombre = document.getElementById('f_nom').value.trim();
+    let error = false;
+    
+    if (!idMenu) {
+        document.getElementById('val_id').innerHTML = 'El ID es obligatorio';
+        document.getElementById('f_id').style.borderColor = '#ef4444';
+        error = true;
+    } else if (/\s/.test(idMenu)) {
+        document.getElementById('val_id').innerHTML = 'El ID no puede contener espacios';
+        document.getElementById('f_id').style.borderColor = '#ef4444';
+        error = true;
+    } else {
+        document.getElementById('val_id').innerHTML = '';
+        document.getElementById('f_id').style.borderColor = '';
+    }
+    
+    if (!nombre) {
+        document.getElementById('val_nom').innerHTML = 'El nombre es obligatorio';
+        document.getElementById('f_nom').style.borderColor = '#ef4444';
+        error = true;
+    } else {
+        document.getElementById('val_nom').innerHTML = '';
+        document.getElementById('f_nom').style.borderColor = '';
+    }
+    
+    if (error) e.preventDefault();
+});
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    const total = document.querySelectorAll('#treeRoot li[data-id]').length;
+    const folders = document.querySelectorAll('#treeRoot li[data-type="folder"]').length;
+    const files = total - folders;
+    
+    document.getElementById('totalFolders').innerText = folders;
+    document.getElementById('totalFiles').innerText = files;
+    document.getElementById('totalMenus').innerText = total;
+    document.getElementById('itemCount').innerText = `${total} menús`;
+    
+    const scrollContainer = document.querySelector('.tree-container');
+    if (scrollContainer) {
+        scrollContainer.style.scrollBehavior = 'smooth';
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') cerrarModal();
+});
+
+// Auto-cerrar alertas
+setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+        alert.classList.remove('show');
+        setTimeout(() => alert.remove(), 300);
+    });
+}, 5000);
+</script>
